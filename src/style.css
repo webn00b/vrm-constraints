@@ -1,0 +1,242 @@
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #1a1d24;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #e6e8ec;
+}
+
+#app { position: relative; width: 100vw; height: 100vh; }
+
+#scene { display: block; width: 100%; height: 100%; }
+
+#panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 260px;
+  padding: 16px 18px;
+  background: rgba(24, 27, 34, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  user-select: none;
+}
+
+#panel h1 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0 0 16px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #9aa0aa;
+}
+
+/* Black on/off switch */
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.switch { position: relative; width: 66px; height: 28px; flex: none; }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+.track {
+  position: absolute;
+  inset: 0;
+  background: #4a4f5b;                 /* OFF: clearly grey */
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+/* State word (OFF / ON) shown on the side opposite the knob */
+.track::before {
+  content: "OFF";
+  position: absolute;
+  top: 0;
+  right: 9px;
+  line-height: 26px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #cfd3da;
+}
+/* The knob */
+.track::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  transition: transform 0.18s ease;
+}
+.switch input:checked + .track {
+  background: #2ecc71;                 /* ON: bright green */
+  border-color: #2ecc71;
+}
+.switch input:checked + .track::before {
+  content: "ON";
+  right: auto;
+  left: 10px;
+  color: #08381f;
+}
+.switch input:checked + .track::after { transform: translateX(38px); }
+.switch input:focus-visible + .track { outline: 2px solid #7aa2ff; outline-offset: 2px; }
+
+.switch-label { font-size: 13px; font-weight: 500; }
+.switch-label small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 400;
+  color: #7f8792;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: #9aa0aa;
+}
+.profile-row select {
+  flex: 1;
+  background: #22262e;
+  color: #e6e8ec;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+#reset {
+  width: 100%;
+  padding: 8px;
+  background: #22262e;
+  color: #e6e8ec;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+#reset:hover { background: #2c313b; }
+
+.status {
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #7f8792;
+  min-height: 34px;
+}
+.status b { color: #e6e8ec; font-weight: 600; }
+.status .clamped { color: #ff8b6b; }
+
+/* Joints panel (right) */
+#joints-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  width: 288px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 6px 12px 14px;
+  background: rgba(24, 27, 34, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  user-select: none;
+}
+.jp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 8px;
+  margin-bottom: 4px;
+}
+.jp-title { font-size: 14px; font-weight: 600; }
+#joints-dump {
+  background: #22262e;
+  color: #e6e8ec;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+#joints-dump:hover { background: #2c313b; }
+.jp-hint { font-size: 10px; color: #7f8792; margin: 0 8px 8px 0; line-height: 1.4; }
+#joints-list { overflow-y: auto; padding-right: 6px; flex: 1; }
+#joints-list::-webkit-scrollbar { width: 8px; }
+#joints-list::-webkit-scrollbar-thumb { background: #3a3f4b; border-radius: 4px; }
+
+.joint {
+  padding: 6px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.joint-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+.jname { font-size: 12px; font-weight: 500; }
+.jname.sel { color: #ff8b3d; }
+.jbadge { font-size: 9px; color: #ff8b6b; font-weight: 700; }
+.axis {
+  display: grid;
+  grid-template-columns: 12px 1fr 62px;
+  align-items: center;
+  gap: 6px;
+  height: 18px;
+}
+.axis > label { font-size: 10px; color: #9aa0aa; }
+.axis input[type="range"] {
+  width: 100%;
+  height: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #3a3f4b;
+  border-radius: 2px;
+  outline: none;
+}
+.axis input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e6e8ec;
+  cursor: pointer;
+}
+.axis .val { font-size: 10px; color: #9aa0aa; text-align: right; font-variant-numeric: tabular-nums; }
+.axis .val.clamped { color: #ff8b3d; }
+
+#loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: #9aa0aa;
+  background: #1a1d24;
+  transition: opacity 0.4s ease;
+}
+#loading.hidden { opacity: 0; pointer-events: none; }

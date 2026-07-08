@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VRM Bone Viewer</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+
+      <div id="panel">
+        <h1>VRM Bone Viewer</h1>
+        <p class="hint">
+          Grab a black joint marker and drag it — the bone aims at the cursor and
+          stops at its ROM limit when constraints are on.
+        </p>
+
+        <label class="switch-row">
+          <span class="switch">
+            <input type="checkbox" id="mesh-toggle" />
+            <span class="track"></span>
+          </span>
+          <span class="switch-label">
+            Show VRM mesh
+            <small>off = skeleton only</small>
+          </span>
+        </label>
+
+        <label class="switch-row">
+          <span class="switch">
+            <input type="checkbox" id="constraint-toggle" checked />
+            <span class="track"></span>
+          </span>
+          <span class="switch-label">Bone constraints (ROM)</span>
+        </label>
+
+        <label class="switch-row">
+          <span class="switch">
+            <input type="checkbox" id="hardlock-toggle" />
+            <span class="track"></span>
+          </span>
+          <span class="switch-label">
+            Hard lock — can't break rules
+            <small>bones physically stop at the limit while dragging</small>
+          </span>
+        </label>
+
+        <label class="switch-row">
+          <span class="switch">
+            <input type="checkbox" id="debug-toggle" />
+            <span class="track"></span>
+          </span>
+          <span class="switch-label">
+            Debug logs
+            <small>open the browser console (F12) to read them</small>
+          </span>
+        </label>
+
+        <div class="profile-row">
+          <label for="profile">Profile</label>
+          <select id="profile">
+            <option value="strict">strict (coupled)</option>
+            <option value="default">default (box)</option>
+            <option value="mixamoLive">mixamoLive (wide)</option>
+          </select>
+        </div>
+
+        <button id="reset">Reset pose</button>
+
+        <div id="status" class="status"></div>
+      </div>
+
+      <div id="joints-panel">
+        <div class="jp-head">
+          <span class="jp-title">Joints</span>
+          <button id="joints-dump" title="console.table of every joint">Dump → console</button>
+        </div>
+        <div class="jp-hint">Slide to pose. Orange = clamp moved it (requested → actual).</div>
+        <div id="joints-list"></div>
+      </div>
+
+      <div id="loading">Loading model…</div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
