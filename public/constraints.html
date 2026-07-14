@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VRM Bone Constraints — strict profile</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 32px 20px 64px;
+    background: #1a1d24; color: #e6e8ec;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 28px 0 10px; color: #9aa0aa; text-transform: uppercase; letter-spacing: .06em; }
+  a { color: #7aa2ff; }
+  .sub { color: #9aa0aa; font-size: 13px; margin: 0 0 8px; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12px; color: #9aa0aa;
+    margin: 14px 0 4px; padding: 10px 14px;
+    background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 10px;
+  }
+  .legend b { color: #e6e8ec; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,.07); }
+  th { color: #9aa0aa; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  td.bone { font-weight: 600; }
+  td.hinge { color: #ff8b3d; }        /* the tight/primary flex axis */
+  .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .axis { color: #7f8792; }
+  .tag { font-size: 10px; color: #08381f; background: #2ecc71; border-radius: 4px; padding: 1px 5px; margin-left: 6px; font-weight: 700; }
+  .json-head { display: flex; align-items: center; justify-content: space-between; margin: 32px 0 8px; }
+  button {
+    background: #22262e; color: #e6e8ec; border: 1px solid rgba(255,255,255,.14);
+    border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer;
+  }
+  button:hover { background: #2c313b; }
+  pre {
+    margin: 0; padding: 16px; overflow-x: auto;
+    background: #141821; border: 1px solid rgba(255,255,255,.08); border-radius: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5;
+    color: #cdd3dd;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>VRM Bone Constraints</h1>
+  <p class="sub">Profile <b>strict (coupled swing-twist cone)</b> · degrees · right side mirrors left · <a href="./">← back to viewer</a></p>
+
+  <div class="legend">
+    <span><b>Swing</b> = how far the bone tilts about the two axes ⟂ to itself</span>
+    <span><b>Twist</b> = axial rotation about the bone's own axis</span>
+    <span><span class="tag">tight</span> hinge — flexes in one plane only</span>
+  </div>
+
+  <div id="tables"></div>
+
+  <div class="json-head">
+    <h2 style="margin:0">JSON</h2>
+    <button id="copy">Copy JSON</button>
+  </div>
+  <pre id="json"></pre>
+</div>
+
+<script>
+// Cone extents (deg) of the strict profile. twist = axial axis; swingA/swingB =
+// the two swing-plane axes. Right side mirrors left.
+const DATA = {
+  profile: "strict",
+  units: "degrees",
+  note: "swing = tilt about the two axes perpendicular to the bone; twist = axial rotation. Coupled elliptical cone: single axis reaches full range, combinations are limited. Right side mirrors left.",
+  joints: {
+    hips:          { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-45,45], swingA:[-30,30], swingB:[-25,25] },
+    spine:         { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-20,20], swingA:[-25,35], swingB:[-20,20] },
+    chest:         { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-20,20], swingA:[-25,35], swingB:[-20,20] },
+    upperChest:    { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-20,20], swingA:[-25,35], swingB:[-20,20] },
+    neck:          { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-70,70], swingA:[-45,60], swingB:[-40,40] },
+    head:          { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-30,30], swingA:[-30,40], swingB:[-30,30] },
+    leftShoulder:  { axes: { twist:"X", swingA:"Y", swingB:"Z" }, twist:[-20,30], swingA:[-20,20], swingB:[-20,30] },
+    leftUpperArm:  { axes: { twist:"X", swingA:"Y", swingB:"Z" }, twist:[-95,95], swingA:[-135,60], swingB:[-115,100] },
+    leftLowerArm:  { axes: { twist:"X", swingA:"Y", swingB:"Z" }, twist:[-85,85], swingA:[-150,10], swingB:[-15,15], hinge:"swingB" },
+    leftHand:      { axes: { twist:"X", swingA:"Y", swingB:"Z" }, twist:[-15,15], swingA:[-35,35], swingB:[-85,75], hinge:"twist" },
+    rightShoulder: { axes: { twist:"X", swingA:"Y", swingB:"Z" }, twist:[-20,30], swingA:[-20,20], swingB:[-30,20] },
+    rightUpperArm: { axes: { twist:"X", swingA:"Y", swingB:"Z" }, twist:[-95,95], swingA:[-60,135], swingB:[-100,115] },
+    rightLowerArm: { axes: { twist:"X", swingA:"Y", swingB:"Z" }, twist:[-85,85], swingA:[-10,150], swingB:[-15,15], hinge:"swingB" },
+    rightHand:     { axes: { twist:"X", swingA:"Y", swingB:"Z" }, twist:[-15,15], swingA:[-35,35], swingB:[-75,85], hinge:"twist" },
+    leftUpperLeg:  { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-50,50], swingA:[-125,35], swingB:[-35,55] },
+    leftLowerLeg:  { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-10,10], swingA:[-5,140], swingB:[-5,5], hinge:"swingB" },
+    leftFoot:      { axes: { twist:"Z", swingA:"X", swingB:"Y" }, twist:[-20,40], swingA:[-35,55], swingB:[-30,30] },
+    rightUpperLeg: { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-50,50], swingA:[-125,35], swingB:[-55,35] },
+    rightLowerLeg: { axes: { twist:"Y", swingA:"X", swingB:"Z" }, twist:[-10,10], swingA:[-5,140], swingB:[-5,5], hinge:"swingB" },
+    rightFoot:     { axes: { twist:"Z", swingA:"X", swingB:"Y" }, twist:[-40,20], swingA:[-35,55], swingB:[-30,30] },
+  },
+};
+
+const GROUPS = [
+  ["Torso & head", ["hips","spine","chest","upperChest","neck","head"]],
+  ["Arms (left — right mirrors)", ["leftShoulder","leftUpperArm","leftLowerArm","leftHand"]],
+  ["Legs (left — right mirrors)", ["leftUpperLeg","leftLowerLeg","leftFoot"]],
+];
+
+const rng = (r) => `${r[0]}…${r[1]}°`;
+function cell(j, key) {
+  const cls = j.hinge === key ? 'hinge' : '';
+  const tag = j.hinge === key ? ' <span class="tag">tight</span>' : '';
+  return `<td class="mono ${cls}"><span class="axis">${j.axes[key]}</span> ${rng(j[key])}${tag}</td>`;
+}
+
+document.getElementById('tables').innerHTML = GROUPS.map(([title, bones]) => `
+  <h2>${title}</h2>
+  <table>
+    <thead><tr><th>Joint</th><th>Swing A</th><th>Swing B</th><th>Twist</th></tr></thead>
+    <tbody>
+      ${bones.map((b) => {
+        const j = DATA.joints[b];
+        return `<tr><td class="bone">${b}</td>${cell(j,'swingA')}${cell(j,'swingB')}${cell(j,'twist')}</tr>`;
+      }).join('')}
+    </tbody>
+  </table>
+`).join('');
+
+const jsonText = JSON.stringify(DATA, null, 2);
+document.getElementById('json').textContent = jsonText;
+document.getElementById('copy').addEventListener('click', async (e) => {
+  try {
+    await navigator.clipboard.writeText(jsonText);
+    e.target.textContent = 'Copied ✓';
+    setTimeout(() => (e.target.textContent = 'Copy JSON'), 1500);
+  } catch {
+    e.target.textContent = 'Copy failed';
+  }
+});
+</script>
+</body>
+</html>
