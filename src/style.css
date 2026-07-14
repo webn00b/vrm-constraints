@@ -138,6 +138,22 @@ html, body {
 }
 #reset:hover { background: #2c313b; }
 
+#constraints-link {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  background: #22262e;
+  color: #e6e8ec;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+#constraints-link:hover { background: #2c313b; }
+
 .status {
   margin-top: 14px;
   font-size: 12px;
